@@ -1,9 +1,8 @@
 use iced::widget::{
-    button, checkbox, column, container, horizontal_rule, pick_list,
-    progress_bar, row, scrollable, slider, text, text_input, toggler,
-    vertical_rule, vertical_space,
+    button, checkbox, column, container, horizontal_rule, pick_list, progress_bar, row, scrollable,
+    slider, text, text_input, toggler, vertical_rule, vertical_space,
 };
-use iced::{Alignment, Element, Length, Sandbox, Settings, Theme};
+use iced::{Alignment, Element, Length, Renderer, Sandbox, Settings, Theme};
 
 pub fn main() -> iced::Result {
     Styling::run(Settings::default())
@@ -16,6 +15,7 @@ struct Styling {
     slider_value: f32,
     checkbox_value: bool,
     toggler_value: bool,
+    username: String,
 }
 
 #[derive(Debug, Clone)]
@@ -26,6 +26,7 @@ enum Message {
     SliderChanged(f32),
     CheckboxToggled(bool),
     TogglerToggled(bool),
+    UserNameChanged(String),
 }
 
 impl Sandbox for Styling {
@@ -49,28 +50,33 @@ impl Sandbox for Styling {
             Message::SliderChanged(value) => self.slider_value = value,
             Message::CheckboxToggled(value) => self.checkbox_value = value,
             Message::TogglerToggled(value) => self.toggler_value = value,
+            Message::UserNameChanged(value) => self.username = value,
         }
     }
 
     fn view(&self) -> Element<Message> {
         let choose_theme = column![
             text("Theme:"),
-            pick_list(Theme::ALL, Some(&self.theme), Message::ThemeChanged)
-                .width(Length::Fill),
+            pick_list(Theme::ALL, Some(&self.theme), Message::ThemeChanged).width(Length::Fill),
         ]
         .spacing(10);
 
-        let text_input = text_input("Type something...", &self.input_value)
+        let random_text_input = text_input("Type something...", &self.input_value)
             .on_input(Message::InputChanged)
             .padding(10)
             .size(20);
+
+        let another_text_input: text_input::TextInput<'_, Message, Theme, Renderer> =
+            text_input("What is Your Name?", &self.username)
+                .on_input(Message::UserNameChanged)
+                .padding(10)
+                .size(20);
 
         let button = button("Submit")
             .padding(10)
             .on_press(Message::ButtonPressed);
 
-        let slider =
-            slider(0.0..=100.0, self.slider_value, Message::SliderChanged);
+        let slider = slider(0.0..=100.0, self.slider_value, Message::SliderChanged);
 
         let progress_bar = progress_bar(0.0..=100.0, self.slider_value);
 
@@ -82,8 +88,8 @@ impl Sandbox for Styling {
         .width(Length::Fill)
         .height(100);
 
-        let checkbox = checkbox("Check me!", self.checkbox_value)
-            .on_toggle(Message::CheckboxToggled);
+        let checkbox =
+            checkbox("Check me!", self.checkbox_value).on_toggle(Message::CheckboxToggled);
 
         let toggler = toggler(
             String::from("Toggle me!"),
@@ -93,10 +99,12 @@ impl Sandbox for Styling {
         .width(Length::Shrink)
         .spacing(10);
 
+        let some_other_content = row![another_text_input];
+
         let content = column![
             choose_theme,
             horizontal_rule(38),
-            row![text_input, button]
+            row![random_text_input, button]
                 .spacing(10)
                 .align_items(Alignment::Center),
             slider,
@@ -109,6 +117,9 @@ impl Sandbox for Styling {
             .spacing(10)
             .height(100)
             .align_items(Alignment::Center),
+            row![
+                some_other_content
+            ]
         ]
         .spacing(20)
         .padding(20)
