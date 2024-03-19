@@ -1,11 +1,27 @@
+use iced::font::{Family, Weight};
 use iced::widget::{
     button, checkbox, column, container, horizontal_rule, pick_list, progress_bar, row, scrollable,
     slider, text, text_input, toggler, vertical_rule, vertical_space,
 };
-use iced::{Alignment, Element, Length, Renderer, Sandbox, Settings, Theme};
+use iced::{executor, Alignment, Application, Command, Element, Font, Length, Renderer, Size, Theme};
 
 pub fn main() -> iced::Result {
-    Styling::run(Settings::default())
+    Styling::run(iced::Settings {
+        window: iced::window::Settings {
+            size: Size {
+                width: 377.0,
+                height: 533.0
+            },
+            position: iced::window::Position::Centered,
+            ..Default::default()
+        },
+        default_font: Font {
+            family: Family::Fantasy,
+            weight: Weight::Semibold,
+            ..Default::default()
+        },
+        ..Default::default()
+    })
 }
 
 #[derive(Default)]
@@ -22,36 +38,51 @@ struct Styling {
 enum Message {
     ThemeChanged(Theme),
     InputChanged(String),
-    ButtonPressed,
     SliderChanged(f32),
     CheckboxToggled(bool),
     TogglerToggled(bool),
     UserNameChanged(String),
 }
 
-impl Sandbox for Styling {
+impl Application for Styling {
     type Message = Message;
 
-    fn new() -> Self {
-        Styling::default()
+    type Executor = executor::Default;
+
+    type Theme = Theme;
+
+    type Flags = ();
+
+    fn new(_flags: ()) -> (Styling, Command<Self::Message>) {
+        (Styling::default(), Command::none())
     }
 
     fn title(&self) -> String {
-        String::from("Styling - Iced")
+        String::from("Awesome Iced Demo")
     }
 
-    fn update(&mut self, message: Message) {
+    fn update(&mut self, message: Message) -> Command<self::Message> {
         match message {
             Message::ThemeChanged(theme) => {
-                self.theme = theme;
+                self.theme = theme
             }
-            Message::InputChanged(value) => self.input_value = value,
-            Message::ButtonPressed => {}
-            Message::SliderChanged(value) => self.slider_value = value,
-            Message::CheckboxToggled(value) => self.checkbox_value = value,
-            Message::TogglerToggled(value) => self.toggler_value = value,
-            Message::UserNameChanged(value) => self.username = value,
+            Message::InputChanged(value) => {
+                self.input_value = value
+            }
+            Message::SliderChanged(value) => {
+                self.slider_value = value
+            },
+            Message::CheckboxToggled(value) => {
+                self.checkbox_value = value
+            },
+            Message::TogglerToggled(value) => {
+                self.toggler_value = value
+            },
+            Message::UserNameChanged(value) => {
+                self.username = value
+            }
         }
+        Command::none()
     }
 
     fn view(&self) -> Element<Message> {
@@ -72,9 +103,7 @@ impl Sandbox for Styling {
                 .padding(10)
                 .size(20);
 
-        let button = button("Submit")
-            .padding(10)
-            .on_press(Message::ButtonPressed);
+        let button = button("Submit").padding(10);
 
         let slider = slider(0.0..=100.0, self.slider_value, Message::SliderChanged);
 
@@ -117,9 +146,7 @@ impl Sandbox for Styling {
             .spacing(10)
             .height(100)
             .align_items(Alignment::Center),
-            row![
-                some_other_content
-            ]
+            row![some_other_content]
         ]
         .spacing(20)
         .padding(20)
