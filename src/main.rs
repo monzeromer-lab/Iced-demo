@@ -3,23 +3,27 @@ use iced::widget::{
     button, checkbox, column, container, horizontal_rule, pick_list, progress_bar, row, scrollable,
     slider, text, text_input, toggler, vertical_rule, vertical_space,
 };
-use iced::{executor, Alignment, Application, Command, Element, Font, Length, Renderer, Size, Theme};
+use iced::{
+    executor, Alignment, Application, Command, Element, Font, Length, Pixels, Renderer, Size, Theme,
+};
 
 pub fn main() -> iced::Result {
     Styling::run(iced::Settings {
         window: iced::window::Settings {
             size: Size {
                 width: 377.0,
-                height: 533.0
+                height: 533.0,
             },
             position: iced::window::Position::Centered,
             ..Default::default()
         },
         default_font: Font {
             family: Family::Fantasy,
-            weight: Weight::Semibold,
+            weight: Weight::Normal,
             ..Default::default()
         },
+        default_text_size: Pixels(14.0),
+        antialiasing: true,
         ..Default::default()
     })
 }
@@ -63,24 +67,12 @@ impl Application for Styling {
 
     fn update(&mut self, message: Message) -> Command<self::Message> {
         match message {
-            Message::ThemeChanged(theme) => {
-                self.theme = theme
-            }
-            Message::InputChanged(value) => {
-                self.input_value = value
-            }
-            Message::SliderChanged(value) => {
-                self.slider_value = value
-            },
-            Message::CheckboxToggled(value) => {
-                self.checkbox_value = value
-            },
-            Message::TogglerToggled(value) => {
-                self.toggler_value = value
-            },
-            Message::UserNameChanged(value) => {
-                self.username = value
-            }
+            Message::ThemeChanged(theme) => self.theme = theme,
+            Message::InputChanged(value) => self.input_value = value,
+            Message::SliderChanged(value) => self.slider_value = value,
+            Message::CheckboxToggled(value) => self.checkbox_value = value,
+            Message::TogglerToggled(value) => self.toggler_value = value,
+            Message::UserNameChanged(value) => self.username = value,
         }
         Command::none()
     }
@@ -94,16 +86,16 @@ impl Application for Styling {
 
         let random_text_input = text_input("Type something...", &self.input_value)
             .on_input(Message::InputChanged)
-            .padding(10)
-            .size(20);
+            .padding(5)
+            .size(14);
 
         let another_text_input: text_input::TextInput<'_, Message, Theme, Renderer> =
             text_input("What is Your Name?", &self.username)
                 .on_input(Message::UserNameChanged)
-                .padding(10)
-                .size(20);
+                .padding(5)
+                .size(14);
 
-        let button = button("Submit").padding(10);
+        let button = button("Submit").padding(5);
 
         let slider = slider(0.0..=100.0, self.slider_value, Message::SliderChanged);
 
